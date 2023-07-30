@@ -275,6 +275,74 @@ def quiz_ans():
 #     #         match_count += 1
 #     #         # Return the total number of matches as JSON
 #     # return jsonify({"match_count": match_count})
+
+
+
+
+#=====================================================
+@app.route('/get_data/quiz_ans', methods=['POST'])
+def quiz_ans():
+    # Access form data using request.form dictionary
+    form_data = request.form
+    entry_id = request.form['entry_id']
+
+    # Establish connection to SQLite database
+    conn = sqlite3.connect('instance/db.sqlite')
+    cursor = conn.cursor()
+
+    # Execute the SELECT query and fetch all data
+    cursor.execute(f"SELECT * FROM {entry_id}")
+    data = cursor.fetchall()
+
+    # Close the database connection
+    conn.close()
+
+    # Converted extracted_data to a dictionary where each element is a key with value "zahid"
+    extracted_data = {f"zahid_{i}": "zahid" for i in range(len(data))}
+
+    matches = []
+    mismatches = []
+    for key, value in form_data.items():
+        if value in extracted_data.values():
+            matches.append(value)
+        else:
+            mismatches.append(value)
+
+    # Count the number of matches and mismatches
+    match_count = len(matches)
+    mismatch_count = len(mismatches)-1
+
+    # Return the matches and mismatches count as JSON
+    return jsonify({"match_count": match_count, "mismatch_count": mismatch_count})
+
+    # Check if each value in extracted_data is present in form_data values
+    # matches = []
+    # mismatches = []
+    # for key, value in form_data.items():
+    #     if value in extracted_data.values():
+    #         matches.append(value)
+    #     else:
+    #         mismatches.append(value)
+
+    # # Return the matches and mismatches as JSON
+    # return jsonify({"matches": matches, "mismatches": mismatches})
+
+    # Check if each value in extracted_data is present in form_data values
+    # match_count = 0
+    # for value in form_data.values():
+    #     if value in extracted_data.values():
+    #         match_count += 1
+
+    # # Return the total number of matches as JSON
+    # return jsonify({"match_count": match_count})
+    #====================================================================
+
+
+
+
+
+
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
